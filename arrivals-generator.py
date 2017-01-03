@@ -38,10 +38,12 @@ def main():
     max_time = int(sys.argv[len_argv-1])
     count = 1
     arrivals = []
+    file_name = ""
     
     while count <= total_classes:
         lambd = float(sys.argv[2*count - 1])
         exp = float(sys.argv[2*count])
+        file_name += str(lambd) + "_" + str(exp) + "_"
     
         clientsArrival = organizedArrivalWithWork(lambd, exp, max_time)
         
@@ -50,8 +52,11 @@ def main():
 
         count+= 1
 
+    file_name += str(max_time)
+    
     sorted_arrivals = sorted(arrivals, key=lambda tup: tup[0])
-    arrivals_file = open("arrivals-"+str(total_classes)+"-"+time.ctime(), 'w')
+
+    arrivals_file = open("arrivals-" + file_name + "-" + time.ctime(), 'w')
     pickle.dump(sorted_arrivals, arrivals_file, pickle.HIGHEST_PROTOCOL)
     arrivals_file.close()
     
