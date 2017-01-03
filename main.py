@@ -10,6 +10,10 @@ def main():
         print fcfs.clients
         file.close()
         fcfs.simulate()
+        print "Time Average =", fcfs.timeAverage
+        print "Work Average =", fcfs.workAverage
+        print "Wait Average =", fcfs.waitAverage
+        print "Residual Average =", fcfs.residualAverage
 
 if __name__ == "__main__":
     main()
