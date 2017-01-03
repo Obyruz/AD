@@ -1,6 +1,6 @@
 from Queue import *
 
-class FCFS(Queue):
+class LCFS(Queue):
     
     def __init__(self):
         Queue.__init__(self)
@@ -12,7 +12,7 @@ class FCFS(Queue):
     
     def onService(self):
         if self.queue:
-            next_client = self.queue.pop(0)
+            next_client = self.queue.pop(len(self.queue)-1)
             self.current = next_client
             self.residual = next_client[WORK]
             print "Service", self.time, next_client

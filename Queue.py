@@ -107,7 +107,7 @@ class Queue:
         
         self.current = client
         self.residual = client[WORK]
-        print "Arrival Empty", self.time
+        print "Arrival Empty", self.time, client
         
     def addMetric(self, metric, amount, clazz):
         if clazz in metric:

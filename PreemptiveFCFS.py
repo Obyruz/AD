@@ -7,7 +7,7 @@ class FCFS(Queue):
         self.queue = []
     
     def onArrival(self, client):
-        print "Arrival", self.time, client
+        print client, "Arrival at", self.time
         self.queue.append(client)
     
     def onService(self):
@@ -15,6 +15,6 @@ class FCFS(Queue):
             next_client = self.queue.pop(0)
             self.current = next_client
             self.residual = next_client[WORK]
-            print "Service", self.time, next_client
+            print "Service Finished at", self.time, "By", next_client
         else:
             print "Queue Empty"
