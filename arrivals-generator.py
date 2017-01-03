@@ -51,7 +51,7 @@ def main():
         count+= 1
 
     sorted_arrivals = sorted(arrivals, key=lambda tup: tup[0])
-    arrivals_file = open("arrivals-"+time.ctime(), 'w')
+    arrivals_file = open("arrivals-"+str(total_classes)+"-"+time.ctime(), 'w')
     pickle.dump(sorted_arrivals, arrivals_file, pickle.HIGHEST_PROTOCOL)
     arrivals_file.close()
     
