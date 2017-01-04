@@ -14,12 +14,14 @@ class Queue:
         self.clients = []
         self.served = []
         
+        self.pendingWorkTotal = 0.0
         self.residualTotal = {}
         self.residualClass = {}
         self.timeTotal = {}
         self.workTotal = {}
         self.busyTime = {}
         
+        self.pendingWorkAverage = 0.0
         self.residualAverage = {}
         self.timeAverage = {}
         self.workAverage = {}
@@ -62,6 +64,8 @@ class Queue:
             else:
                 self.residualAverage[clazz] = 0
         
+        self.pendingWorkAverage = self.pendingWorkTotal / classClients['all']
+        
         self.timeAverage['all'] = self.timeTotal['all'] / classClients['all']
         self.workAverage['all'] = self.workTotal['all'] / classClients['all']
         self.waitAverage['all'] = (self.timeTotal['all'] - self.workTotal['all']) / classClients['all']
@@ -86,6 +90,8 @@ class Queue:
         
         self.time += timeUntilNextArrival
         self.residual -= timeUntilNextArrival
+        
+        self.pendingWorkTotal += self.calculatePendingWork()
         
         self.addMetric(self.residualClass, 1, self.current[CLASS])
         self.addMetric(self.residualTotal, self.residual, self.current[CLASS])
@@ -124,6 +130,10 @@ class Queue:
             metric[clazz] += amount
         else:
             metric[clazz] = amount
+
+    @abc.abstractmethod    
+    def calculatePendingWork(self):
+        pass
     
     @abc.abstractmethod
     def onArrival(self, client):

@@ -15,6 +15,7 @@ def run(queue, file):
     print "Work Average =", queue.workAverage
     print "Wait Average =", queue.waitAverage
     print "Residual Average =", queue.residualAverage
+    print "Pending Work Average =", queue.pendingWorkAverage
     print "Utilisation =", queue.utilisation
 
 def main():
