@@ -2,6 +2,7 @@ from FCFS import FCFS
 from LCFS import LCFS
 from PreemptiveLCFS import PreemptiveLCFS
 from PreemptiveFCFS import PreemptiveFCFS
+from FCFSWithPriority import FCFSWithPriority
 import sys
 import pickle
 
@@ -56,7 +57,16 @@ def main():
     	print "Work Average =", preemptivefcfs.workAverage
     	print "Wait Average =", preemptivefcfs.waitAverage
     	print "Residual Average =", preemptivefcfs.residualAverage
-
+    elif queue_type == 'FCFSWithPriority':
+    	fcfswithpriority = FCFSWithPriority()
+    	fcfswithpriority.clients = pickle.load(file)
+    	print fcfswithpriority.clients
+    	file.close()
+    	fcfswithpriority.simulate()
+    	print "Time Average =", fcfswithpriority.timeAverage
+    	print "Work Average =", fcfswithpriority.workAverage
+    	print "Wait Average =", fcfswithpriority.waitAverage
+    	print "Residual Average =", fcfswithpriority.residualAverage
 
 if __name__ == "__main__":
     main()
