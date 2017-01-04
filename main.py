@@ -6,6 +6,17 @@ from FCFSWithPriority import FCFSWithPriority
 import sys
 import pickle
 
+def run(queue, file):
+    queue.clients = pickle.load(file)
+    print queue.clients
+    file.close()
+    queue.simulate()
+    print "Time Average =", queue.timeAverage
+    print "Work Average =", queue.workAverage
+    print "Wait Average =", queue.waitAverage
+    print "Residual Average =", queue.residualAverage
+    print "Utilisation =", queue.utilisation
+
 def main():
     if len(sys.argv) < 3:
         print "ERROR: Less arguments than expected"
@@ -19,54 +30,23 @@ def main():
     
     if queue_type == 'FCFS':
         fcfs = FCFS()
-        fcfs.clients = pickle.load(file)
-        print fcfs.clients
-        file.close()
-        fcfs.simulate()
-        print "Time Average =", fcfs.timeAverage
-        print "Work Average =", fcfs.workAverage
-        print "Wait Average =", fcfs.waitAverage
-        print "Residual Average =", fcfs.residualAverage
+        run(fcfs, file)
+        
     elif queue_type == 'LCFS':
         lcfs = LCFS()
-        lcfs.clients = pickle.load(file)
-        print lcfs.clients
-        file.close()
-        lcfs.simulate()
-        print "Time Average =", lcfs.timeAverage
-        print "Work Average =", lcfs.workAverage
-        print "Wait Average =", lcfs.waitAverage
-        print "Residual Average =", lcfs.residualAverage
+        run(lcfs, file)
+        
     elif queue_type == 'PreemptiveLCFS':
         preemptivelcfs = PreemptiveLCFS()
-        preemptivelcfs.clients = pickle.load(file)
-        print preemptivelcfs.clients
-        file.close()
-        preemptivelcfs.simulate()
-        print "Time Average =", preemptivelcfs.timeAverage
-        print "Work Average =", preemptivelcfs.workAverage
-        print "Wait Average =", preemptivelcfs.waitAverage
-        print "Residual Average =", preemptivelcfs.residualAverage
+        run(preemptivelcfs, file)
+        
     elif queue_type == 'PreemptiveFCFS':
     	preemptivefcfs = PreemptiveFCFS()
-    	preemptivefcfs.clients = pickle.load(file)
-    	print preemptivefcfs.clients
-    	file.close()
-    	preemptivefcfs.simulate()
-    	print "Time Average =", preemptivefcfs.timeAverage
-    	print "Work Average =", preemptivefcfs.workAverage
-    	print "Wait Average =", preemptivefcfs.waitAverage
-    	print "Residual Average =", preemptivefcfs.residualAverage
+    	run(preemptivefcfs, file)
+    	
     elif queue_type == 'FCFSWithPriority':
     	fcfswithpriority = FCFSWithPriority()
-    	fcfswithpriority.clients = pickle.load(file)
-    	print fcfswithpriority.clients
-    	file.close()
-    	fcfswithpriority.simulate()
-    	print "Time Average =", fcfswithpriority.timeAverage
-    	print "Work Average =", fcfswithpriority.workAverage
-    	print "Wait Average =", fcfswithpriority.waitAverage
-    	print "Residual Average =", fcfswithpriority.residualAverage
+    	run(fcfswithpriority, file)
 
 if __name__ == "__main__":
     main()

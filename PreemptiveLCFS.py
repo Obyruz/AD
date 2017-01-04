@@ -7,7 +7,8 @@ class PreemptiveLCFS(Queue):
         self.queue = []
     
     def onArrival(self, client):
-        lastClient = (self.current[TIME], self.residual, self.current[CLASS])
+        print self.current
+        lastClient = (self.current[ID], self.current[TIME], self.residual, self.current[CLASS])
         self.queue.append(lastClient)
         self.residual = client[WORK]
         self.current = client

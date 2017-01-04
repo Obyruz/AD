@@ -12,7 +12,7 @@ class PreemptiveFCFS(Queue):
             if self.current[CLASS] == 1:
                 self.queue1.append(client)
             else:
-                lastClient = (self.current[TIME], self.residual, self.current[CLASS])
+                lastClient = (self.current[ID], self.current[TIME], self.residual, self.current[CLASS])
                 self.queue2.insert(0, lastClient)
                 self.residual = client[WORK]
                 self.current = client

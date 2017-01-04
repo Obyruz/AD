@@ -59,7 +59,7 @@ def main():
     for i in range(len(sorted_arrivals)):
         sorted_arrivals[i] = (i,) + sorted_arrivals[i]
 
-    arrivals_file = open("arrivals/arrivals-" + file_name + "-" + time.ctime(), 'w')
+    arrivals_file = open("arrivals/arrivals-" + file_name, 'w')
     pickle.dump(sorted_arrivals, arrivals_file, pickle.HIGHEST_PROTOCOL)
     arrivals_file.close()
     
