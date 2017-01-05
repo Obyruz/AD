@@ -17,6 +17,7 @@ def run(queue, file):
     # print queue.clients
     file.close()
     queue.simulate()
+    queue.calculateMetrics()
     print "Time Average =", queue.timeAverage
     print "Work Average =", queue.workAverage
     print "Wait Average =", queue.waitAverage

@@ -24,7 +24,8 @@ class Queue:
     def simulate(self):
         while self.clients or self.current:
             self.nextEvent()
-        
+
+    def calculateMetrics(self):
         classes = self.busyTime.keys()
         
         classClients = {}
