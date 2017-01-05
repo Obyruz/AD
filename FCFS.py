@@ -14,14 +14,6 @@ class FCFS(Queue):
         if self.queue:
             next_client = self.queue.pop(0)
             self.current = next_client
-            self.residual = next_client[WORK]
-            
-    def calculatePendingWork(self):
-        pendingWork = 0.0
-        
-        if self.current:
-            pendingWork += self.residual
-        for client in self.queue:
-            pendingWork += client[WORK]
-            
-        return pendingWork
+    
+    def getAllClients(self):
+        return self.queue

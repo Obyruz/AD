@@ -3,12 +3,18 @@ from LCFS import LCFS
 from PreemptiveLCFS import PreemptiveLCFS
 from PreemptiveFCFS import PreemptiveFCFS
 from FCFSWithPriority import FCFSWithPriority
+from Client import Client
 import sys
 import pickle
 
 def run(queue, file):
-    queue.clients = pickle.load(file)
-    print queue.clients
+    clientsBuffer = pickle.load(file)
+    
+    for clt in clientsBuffer:
+        client = Client(clt[0], clt[1], clt[2], clt[3])
+        queue.clients.append(client)
+
+    # print queue.clients
     file.close()
     queue.simulate()
     print "Time Average =", queue.timeAverage

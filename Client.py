@@ -8,4 +8,10 @@ class Client:
          self.clazz = clazz
          
     def residualTime(self):
-        return work - workTime
+        return self.work - self.workTime
+    
+    def totalTime(self):
+        return self.workTime + self.waitTime
+    
+    def __str__(self):
+        return "({}, {}, {}, {})".format(self.id, self.arrivalTime, self.work, self.clazz)

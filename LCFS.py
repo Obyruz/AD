@@ -13,4 +13,6 @@ class LCFS(Queue):
         if self.queue:
             next_client = self.queue.pop(len(self.queue)-1)
             self.current = next_client
-            self.residual = next_client[WORK]
+
+    def getAllClients(self):
+        return self.queue

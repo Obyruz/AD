@@ -1,4 +1,5 @@
 from Queue import *
+from Client import Client
 
 class PreemptiveLCFS(Queue):
     
@@ -7,14 +8,14 @@ class PreemptiveLCFS(Queue):
         self.queue = []
     
     def onArrival(self, client):
-        print self.current
-        lastClient = (self.current[ID], self.current[TIME], self.residual, self.current[CLASS])
+        lastClient = Client(self.current.id, self.current.time, self.current.residualTime, self.current.clazz)
         self.queue.append(lastClient)
-        self.residual = client[WORK]
         self.current = client
     
     def onService(self):
         if self.queue:
             next_client = self.queue.pop(len(self.queue)-1)
             self.current = next_client
-            self.residual = next_client[WORK]
+            
+    def getAllClients(self):
+        return self.queue

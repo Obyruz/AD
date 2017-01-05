@@ -1,14 +1,9 @@
 import abc
 
-ID   = 0
-TIME = 1
-WORK = 2
-CLASS = 3
 
 class Queue:
     def __init__(self):
         self.current = None
-        self.residual = None
         self.time = 0.0
         
         self.clients = []
@@ -17,8 +12,6 @@ class Queue:
         self.pendingWorkTotal = 0.0
         self.residualTotal = {}
         self.residualClass = {}
-        self.timeTotal = {}
-        self.workTotal = {}
         self.busyTime = {}
         
         self.pendingWorkAverage = 0.0
@@ -32,53 +25,69 @@ class Queue:
         while self.clients or self.current:
             self.nextEvent()
         
-        classes = self.timeTotal.keys()
+        classes = self.busyTime.keys()
         
         classClients = {}
         
         classClients['all'] = 0
-        self.timeTotal['all'] = 0
-        self.workTotal['all'] = 0
         self.residualTotal['all'] = 0
+        self.residualClass['all'] = 0
         self.busyTime['all'] = 0
-       
+        
+        timeTotal = {}
+        workTotal = {}
+        waitTotal = {}
+        
+        timeTotal['all'] = 0.0
+        workTotal['all'] = 0.0
+        waitTotal['all'] = 0.0
+        
         for clazz in classes:
             classClients[clazz] = 0
             for client in self.served:
-                if client[CLASS] == clazz:
+                if client.clazz == clazz:
                     classClients[clazz] += 1
             classClients['all'] += classClients[clazz]
             
-            self.workAverage[clazz] = self.workTotal[clazz] / classClients[clazz]
-            self.timeAverage[clazz] = self.timeTotal[clazz] / classClients[clazz]
-            self.waitAverage[clazz] = (self.timeTotal[clazz] - self.workTotal[clazz]) / classClients[clazz]
-            self.utilisation[clazz] = self.busyTime[clazz]/self.time
+            timeTotal[clazz] = 0.0
+            workTotal[clazz] = 0.0
+            waitTotal[clazz] = 0.0
             
-            self.workTotal['all'] += self.workTotal[clazz]
-            self.timeTotal['all'] += self.timeTotal[clazz]
+            self.utilisation[clazz] = self.busyTime[clazz] / self.time
             self.busyTime['all'] += self.busyTime[clazz]
             
             if clazz in self.residualTotal:
-                self.residualAverage[clazz] = self.residualTotal[clazz] / classClients[clazz]
+                self.residualAverage[clazz] = self.residualTotal[clazz] / self.residualClass[clazz]
                 self.residualTotal['all'] += self.residualTotal[clazz]
+                self.residualClass['all'] += self.residualClass[clazz]
             else:
                 self.residualAverage[clazz] = 0
         
-        self.pendingWorkAverage = self.pendingWorkTotal / classClients['all']
+        for client in self.served:
+            timeTotal[client.clazz] += client.totalTime()
+            workTotal[client.clazz] += client.workTime
+            waitTotal[client.clazz] += client.waitTime
+            
+            timeTotal['all'] += client.totalTime()
+            workTotal['all'] += client.workTime
+            waitTotal['all'] += client.waitTime
         
-        self.timeAverage['all'] = self.timeTotal['all'] / classClients['all']
-        self.workAverage['all'] = self.workTotal['all'] / classClients['all']
-        self.waitAverage['all'] = (self.timeTotal['all'] - self.workTotal['all']) / classClients['all']
-        self.residualAverage['all'] = self.residualTotal['all'] / classClients['all']
+        for clazz in classes + ['all']:
+            self.timeAverage[clazz] = timeTotal[clazz] / classClients[clazz]
+            self.workAverage[clazz] = workTotal[clazz] / classClients[clazz]
+            self.waitAverage[clazz] = waitTotal[clazz] / classClients[clazz]
+        
+        self.pendingWorkAverage = self.pendingWorkTotal / classClients['all']
+        self.residualAverage['all'] = self.residualTotal['all'] / self.residualClass['all']
         self.utilisation['all'] = self.busyTime['all']/self.time
     
     def nextEvent(self):
         if self.clients:
-            time_until_next_arrival = self.clients[0][TIME] - self.time
-            
+            time_until_next_arrival = self.clients[0].arrivalTime - self.time
+
             if self.current == None:
                 self.arrivalEmpty()
-            elif time_until_next_arrival < self.residual:
+            elif time_until_next_arrival < self.current.residualTime():
                 self.nextArrival()
             else:
                 self.nextService()
@@ -86,31 +95,30 @@ class Queue:
             self.nextService()
     
     def nextArrival(self):
-        timeUntilNextArrival = self.clients[0][TIME] - self.time
+        timeUntilNextArrival = self.clients[0].arrivalTime - self.time
         
         self.time += timeUntilNextArrival
-        self.residual -= timeUntilNextArrival
+        self.addClientTime(timeUntilNextArrival)
         
         self.pendingWorkTotal += self.calculatePendingWork()
         
-        self.addMetric(self.residualClass, 1, self.current[CLASS])
-        self.addMetric(self.residualTotal, self.residual, self.current[CLASS])
-        self.addMetric(self.busyTime, timeUntilNextArrival, self.current[CLASS])
+        self.addMetric(self.residualClass, 1, self.current.clazz)
+        self.addMetric(self.residualTotal, self.current.residualTime(), self.current.clazz)
+        self.addMetric(self.busyTime, timeUntilNextArrival, self.current.clazz)
         
         client = self.clients.pop(0)
-        
-        self.addMetric(self.workTotal, client[WORK], client[CLASS])
         
         print self.time ,"Arrival:", client
         self.onArrival(client)
     
     def nextService(self):
-        self.time += self.residual
+        residual = self.current.residualTime()
         
-        self.addMetric(self.timeTotal, self.time - self.current[TIME], self.current[CLASS]),
-        self.addMetric(self.busyTime, self.residual, self.current[CLASS])
+        self.time += residual
+        self.addClientTime(residual)
+        
+        self.addMetric(self.busyTime, residual, self.current.clazz)
         served = self.current
-        self.residual = None
         self.served.append(self.current)
         self.current = None
         
@@ -119,10 +127,9 @@ class Queue:
     
     def arrivalEmpty(self):
         client = self.clients.pop(0)
-        self.time = client[TIME]
+        self.time = client.arrivalTime
         
         self.current = client
-        self.residual = client[WORK]
         print self.time, "Arrival Empty:", client
         
     def addMetric(self, metric, amount, clazz):
@@ -130,9 +137,26 @@ class Queue:
             metric[clazz] += amount
         else:
             metric[clazz] = amount
+    
+    def addClientTime(self, timeElapsed):
+        for client in self.getAllClients():
+            client.waitTime += timeElapsed
+        
+        self.current.workTime += timeElapsed
+    
+    def calculatePendingWork(self):
+        pendingWork = 0.0
+        
+        for client in self.getAllClients():
+            pendingWork += client.residualTime()
+        
+        if self.current:
+            pendingWork += self.current.residualTime()
+        
+        return pendingWork
 
     @abc.abstractmethod    
-    def calculatePendingWork(self):
+    def getAllClients(self):
         pass
     
     @abc.abstractmethod
