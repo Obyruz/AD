@@ -7,12 +7,12 @@ class PreemptiveLCFS(Queue):
         Queue.__init__(self)
         self.queue = []
     
-    def onArrival(self, client):
+    def adToQueue(self, client):
         lastClient = Client(self.current.id, self.current.time, self.current.residualTime, self.current.clazz)
         self.queue.append(lastClient)
         self.current = client
     
-    def onService(self):
+    def serveNextClient(self):
         if self.queue:
             next_client = self.queue.pop(len(self.queue)-1)
             self.current = next_client
