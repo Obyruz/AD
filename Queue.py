@@ -20,6 +20,8 @@ class Queue:
         self.workAverage = {}
         self.waitAverage = {}
         self.utilisation = {}
+
+        self.verbose = False
         
     def simulate(self):
         while self.clients or self.current:
@@ -109,7 +111,9 @@ class Queue:
         
         client = self.clients.pop(0)
         
-        print self.time ,"Arrival:", client
+        if self.verbose:
+            print self.time ,"Arrival:", client
+
         self.onArrival(client)
     
     def nextService(self):
@@ -124,14 +128,16 @@ class Queue:
         self.current = None
         
         self.onService()
-        print self.time, "Served:", served, "/ Next:", (self.current if self.current else "None")
+        if self.verbose:
+            print self.time, "Served:", served, "/ Next:", (self.current if self.current else "None")
     
     def arrivalEmpty(self):
         client = self.clients.pop(0)
         self.time = client.arrivalTime
         
         self.current = client
-        print self.time, "Arrival Empty:", client
+        if self.verbose:
+            print self.time, "Arrival Empty:", client
         
     def addMetric(self, metric, amount, clazz):
         if clazz in metric:

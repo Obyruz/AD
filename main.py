@@ -18,6 +18,7 @@ def run(queue, file):
     file.close()
     queue.simulate()
     queue.calculateMetrics()
+    print "-----------------------------------" 
     print "Time Average =", queue.timeAverage
     print "Work Average =", queue.workAverage
     print "Wait Average =", queue.waitAverage
@@ -26,35 +27,46 @@ def run(queue, file):
     print "Utilisation =", queue.utilisation
 
 def main():
+    verbose = False
+    i = 0
+    while i < len(sys.argv):
+        if sys.argv[i] == '-v':
+            verbose = True
+            del sys.argv[i]
+        else:
+            i += 1
+            
     if len(sys.argv) < 3:
         print "ERROR: Less arguments than expected"
-        print "python main.py <QUEUE_TYPE> <path_to_arrivals_file>"
+        print "python main.py <QUEUE_TYPE> <path_to_arrivals_file> [-v]"
         return 
-    
+
     queue_type = sys.argv[1]
     arrivals_file = sys.argv[2]
     
     file = open( arrivals_file )
     
     if queue_type == 'FCFS':
-        fcfs = FCFS()
-        run(fcfs, file)
-        
+        queue = FCFS()
     elif queue_type == 'LCFS':
-        lcfs = LCFS()
-        run(lcfs, file)
-        
+        queue = LCFS()
     elif queue_type == 'PreemptiveLCFS':
-        preemptivelcfs = PreemptiveLCFS()
-        run(preemptivelcfs, file)
-        
+        queue = PreemptiveLCFS()
     elif queue_type == 'PreemptiveFCFS':
-    	preemptivefcfs = PreemptiveFCFS()
-    	run(preemptivefcfs, file)
-    	
+    	queue = PreemptiveFCFS()
     elif queue_type == 'FCFSWithPriority':
-    	fcfswithpriority = FCFSWithPriority()
-    	run(fcfswithpriority, file)
+    	queue = FCFSWithPriority()
+    else:
+        print "Queue type not supported. Please choose one of the following:"
+        print "FCFS"
+        print "LCFS"
+        print "PreemptiveLCFS"
+        print "PreemptiveFCFS"
+        print "FCFSWithPriority"
+        return
+    
+    queue.verbose = verbose
+    run(queue, file)
 
 if __name__ == "__main__":
     main()
