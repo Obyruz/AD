@@ -9,7 +9,7 @@ import pickle
 
 def run(queue, file):
     clientsBuffer = pickle.load(file)
-    
+
     for clt in clientsBuffer:
         client = Client(clt[0], clt[1], clt[2], clt[3])
         queue.clients.append(client)
@@ -18,7 +18,8 @@ def run(queue, file):
     file.close()
     queue.simulate()
     queue.calculateMetrics()
-    print "-----------------------------------" 
+    print "-----------------------------------"
+    print "Clients Average =", queue.clientsAverage
     print "Time Average =", queue.timeAverage
     print "Work Average =", queue.workAverage
     print "Wait Average =", queue.waitAverage
@@ -35,17 +36,17 @@ def main():
             del sys.argv[i]
         else:
             i += 1
-            
+
     if len(sys.argv) < 3:
         print "ERROR: Less arguments than expected"
         print "python main.py <QUEUE_TYPE> <path_to_arrivals_file> [-v]"
-        return 
+        return
 
     queue_type = sys.argv[1]
     arrivals_file = sys.argv[2]
-    
+
     file = open( arrivals_file )
-    
+
     if queue_type == 'FCFS':
         queue = FCFS()
     elif queue_type == 'LCFS':
@@ -64,7 +65,7 @@ def main():
         print "PreemptiveFCFS"
         print "FCFSWithPriority"
         return
-    
+
     queue.verbose = verbose
     run(queue, file)
 

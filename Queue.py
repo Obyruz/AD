@@ -10,11 +10,13 @@ class Queue:
         self.served = []
 
         self.pendingWorkTotal = 0.0
+        self.totalClientsByTime = 0.0
         self.residualTotal = {}
         self.residualClass = {}
         self.busyTime = {}
 
         self.pendingWorkAverage = 0.0
+        self.clientsAverage = 0.0
         self.residualAverage = {}
         self.timeAverage = {}
         self.workAverage = {}
@@ -81,6 +83,7 @@ class Queue:
             self.waitAverage[clazz] = waitTotal[clazz] / classClients[clazz]
 
         self.pendingWorkAverage = self.pendingWorkTotal / classClients['all']
+        self.clientsAverage = self.totalClientsByTime / self.time
         self.residualAverage['all'] = self.residualTotal['all'] / self.residualClass['all']
         self.utilisation['all'] = self.busyTime['all']/self.time
 
@@ -104,6 +107,7 @@ class Queue:
         self.addClientTime(timeUntilNextArrival)
 
         self.pendingWorkTotal += self.calculatePendingWork()
+        self.totalClientsByTime += (len(self.getAllClients()) + 1) * timeUntilNextArrival
 
         self.addMetric(self.residualClass, 1, self.current.clazz)
         self.addMetric(self.residualTotal, self.current.residualTime(), self.current.clazz)
@@ -123,6 +127,8 @@ class Queue:
         self.addClientTime(residual)
 
         self.addMetric(self.busyTime, residual, self.current.clazz)
+        self.totalClientsByTime += (len(self.getAllClients()) + 1) * residual
+
         served = self.current
         self.served.append(self.current)
         self.current = None
