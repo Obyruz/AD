@@ -91,6 +91,8 @@ class Queue:
         if self.clients:
             time_until_next_arrival = self.clients[0].arrivalTime - self.time
 
+            if self.time % 10000.0 < 1:
+                print self.time
             if self.current == None:
                 self.arrivalEmpty()
             elif time_until_next_arrival < self.current.residualTime():
