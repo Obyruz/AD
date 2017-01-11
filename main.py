@@ -30,13 +30,40 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         utilisation[1] = float(arrivalValues[LAMBD1]) * float(arrivalValues[MU1])
         utilisation[2] = float(arrivalValues[LAMBD2]) * float(arrivalValues[MU2])
         utilisation['all'] = (utilisation[1] + utilisation[2])
+
+        workAverage[1] = float(arrivalValues[MU1])
+        workAverage[2] = float(arrivalValues[MU2])
+        workAverage['all'] = workAverage[1] + workAverage[2]
+
+        residualAverage[1] = (workAverage[1]**2)/(2*workAverage[1])
+        residualAverage[2] = (workAverage[2]**2)/(2*workAverage[2])
+        residualAverage['all'] = (workAverage['all']**2)/(2*workAverage['all'])
+
+        waitAverage[1] = residualAverage[1]/(1-utilisation[1])
+        waitAverage[2] = residualAverage[2]/(1-utilisation[2])
+        waitAverage['all'] = residualAverage['all']/(1-utilisation['all'])
+
+        queueClientsAverage[1] = float(arrivalValues[LAMBD1]) * waitAverage[1]
+        queueClientsAverage[2] = float(arrivalValues[LAMBD2]) * waitAverage[2]
+        queueClientsAverage['all'] = float(arrivalValues[LAMBD1]) * waitAverage[1]
+
+        timeAverage[1] = workAverage[1] + waitAverage[1]
+        timeAverage[2] = workAverage[2] + waitAverage[2]
+        timeAverage['all'] = workAverage['all'] + waitAverage['all']
         #clientsAverage['1'] = arrivalValues[LAMBD1]
         #clientsAverage['2'] = arrivalValues[LAMBD2]
         #clientsAverage['all'] = (arrivalValues[LAMBD1] + arrivalValues[LAMBD2])
         #queueClientsAverage['1'] =
         #queueClientsAverage['2'] =
         #queueClientsAverage['all'] =
-    print utilisation
+
+    print '================= Analytical results ================='
+    print 'Clients Average =', queueClientsAverage
+    print 'Time Average =', timeAverage
+    print 'Work Average =', workAverage
+    print 'Wait Average =', waitAverage
+    print 'Residual Average =', residualAverage
+    print 'Utilisation =', utilisation
 
 def formatArrivalsFile(arrivals_file):
     arrivals = arrivals_file[18:]
@@ -80,7 +107,7 @@ def run(queue, file):
     file.close()
     queue.simulate()
     queue.calculateMetrics()
-    print "-----------------------------------"
+    print "================= Simulated Results ================="
     print "Clients Average =", queue.clientsAverage
     print "Time Average =", queue.timeAverage
     print "Work Average =", queue.workAverage
