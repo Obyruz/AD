@@ -55,9 +55,6 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     params = {'lambda1' : arrivalValues[LAMBD1], 'lambda2' : arrivalValues[LAMBD2]}
     analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'utilisation' : utilisation}
 
-    print params
-    print analytical_results
-
     return (params, analytical_results)
 
 
