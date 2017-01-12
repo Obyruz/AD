@@ -5,14 +5,14 @@ import os
 import sys
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print "ERROR: Less arguments than expected"
-        print "python main.py <path_to_arrivals_file>"
+        print "python main.py <queue_type> <folder>"
         return
 
-    folder = sys.argv[1]
+    folder = sys.argv[2]
     #fcfs = FCFS()
-    queue = "preemptive"
+    queue_type = sys.argv[1]
 
     for i in range(1,10):
         lambda1_lambda2 = []
@@ -28,13 +28,22 @@ def main():
             print "     ", arrivals, "selected"
             arrivals_file = open(folder + arrivals)
 
-            preemptive = PreemptiveFCFS()
+            if queue_type == 'FCFS':
+                queue = FCFS()
+            elif queue_type == 'LCFS':
+                queue = LCFS()
+            elif queue_type == 'PreemptiveLCFS':
+                queue = PreemptiveLCFS()
+            elif queue_type == 'PreemptiveFCFS':
+            	queue = PreemptiveFCFS()
+            elif queue_type == 'FCFSWithPriority':
+            	queue = FCFSWithPriority()
 
             print "     running simulation"
-            simulation_results = run(preemptive, arrivals_file)
+            simulation_results = run(queue, arrivals_file)
 
             print "     calculating analytical values"
-            analytical_values = generateAnalyticalValues('PreemptiveFCFS', arrivals)
+            analytical_values = generateAnalyticalValues(queue_type, arrivals)
 
             params = analytical_values[0]
             analytical_results = analytical_values[1]
@@ -112,7 +121,7 @@ def main():
             axis[1].set_xlabel(r'$\lambda$')
             axis[1].set_ylabel('Wait Average Client 2')
 
-        plt.savefig('plots/' + str(i) + '-' + queue + '-' + folder.split('/')[1]+'.png')
+        plt.savefig('plots/' + str(i) + '-' + queue_type + '-' + folder.split('/')[1]+'.png')
         plt.close()
 
 if __name__ == "__main__":
