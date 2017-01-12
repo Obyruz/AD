@@ -3,20 +3,27 @@ import numpy as np
 from main import *
 from FCFS import FCFS
 import os
+import sys
 
-for folder in ['arrivals/lambda_variation/', 'arrivals/lambda_mu_variation/']:
+def main():
+    if len(sys.argv) < 2:
+        print "ERROR: Less arguments than expected"
+        print "python main.py <path_to_arrivals_file>"
+        return
+
+    folder = sys.argv[1]
     lambda1_lambda2 = []
     pending_work_average_simulated = []
     pending_work_average_analytic = []
-    
+
     print "ploting files from", folder
     for arrivals in sorted(os.listdir(folder)):
         print "     ", arrivals, "selected"
         arrivals_file = open(folder + arrivals)
 
-        print "     running simulation" 
+        print "     running simulation"
         #print arrivals_file
-        
+
         fcfs = FCFS()
         simulation_results = run(fcfs, arrivals_file)
         pending_work_average_simulated.append(simulation_results['pending_work_average'])
@@ -39,3 +46,5 @@ for folder in ['arrivals/lambda_variation/', 'arrivals/lambda_mu_variation/']:
     plt.savefig('plots/'+folder.split('/')[1]+'.png')
     plt.close()
 
+if __name__ == "__main__":
+    main()
