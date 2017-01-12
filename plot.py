@@ -1,10 +1,41 @@
 from matplotlib import pyplot as plt
 import numpy as np
+from main import *
+from FCFS import FCFS
+import os
 
-#lmbda1_lambda2 = np.array([0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05, 1.15])
-#pending_work_average_simulated = np.array([0.00444426653201, 0.0126194221387, 0.0254713930556, 0.0503972993747, 0.088160073512, 0.149528721145, 0.235971590001, 0.395023046001, 0.663695458299, 1.18761151305])
-#pending_work_average_analytic = np.array([0.0006329113924050634, 0.00089058524173028, 0.001150895140664962, 0.0014138817480719797, 0.0016795865633074938, 0.0019480519480519487, 0.002219321148825066, 0.002493438320209974, 0.0027704485488126655, 0.003050397877984086])
+for folder in ['arrivals/lambda_variation/', 'arrivals/lambda_mu_variation/']:
+    lambda1_lambda2 = []
+    pending_work_average_simulated = []
+    pending_work_average_analytic = []
+    
+    print "ploting files from", folder
+    for arrivals in sorted(os.listdir(folder)):
+        print "     ", arrivals, "selected"
+        arrivals_file = open(folder + arrivals)
 
-plt.plot(lmbda1_lambda2, pending_work_average_simulated, color='r')
-plt.plot(lmbda1_lambda2, pending_work_average_analytic, color='b', linestyle='--')
-plt.show()
+        print "     running simulation" 
+        #print arrivals_file
+        
+        fcfs = FCFS()
+        simulation_results = run(fcfs, arrivals_file)
+        pending_work_average_simulated.append(simulation_results['pending_work_average'])
+
+        print "     calculating analytical values"
+        analytical_values = generateAnalyticalValues('FCFS', arrivals)
+        params = analytical_values[0]
+        analytical_results = analytical_values[1]
+
+        lambda1_lambda2.append(float(params['lambda1'])+float(params['lambda2']))
+        pending_work_average_analytic.append(analytical_results['pending_work_average'])
+
+    lambda1_lambda2 = np.array(lambda1_lambda2)
+    pending_work_average_simulated = np.array(pending_work_average_simulated)
+    pending_work_average_analytic = np.array(pending_work_average_analytic)
+
+    print "     generating plot"
+    plt.plot(lambda1_lambda2, pending_work_average_simulated, color='r')
+    plt.plot(lambda1_lambda2, pending_work_average_analytic, color='b', linestyle='--')
+    plt.savefig('plots/'+folder.split('/')[1]+'.png')
+    plt.close()
+
