@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from main import *
-from FCFS import FCFS
 import os
 import sys
 
@@ -12,39 +11,109 @@ def main():
         return
 
     folder = sys.argv[1]
-    lambda1_lambda2 = []
-    pending_work_average_simulated = []
-    pending_work_average_analytic = []
+    #fcfs = FCFS()
+    queue = "preemptive"
 
-    print "ploting files from", folder
-    for arrivals in sorted(os.listdir(folder)):
-        print "     ", arrivals, "selected"
-        arrivals_file = open(folder + arrivals)
+    for i in range(1,10):
+        lambda1_lambda2 = []
+        simulated = []
+        simulated2 = []
+        analytic = []
 
-        print "     running simulation"
-        #print arrivals_file
+        print "QUESTAO", i
 
-        fcfs = FCFS()
-        simulation_results = run(fcfs, arrivals_file)
-        pending_work_average_simulated.append(simulation_results['pending_work_average'])
+        print "ploting files from", folder
 
-        print "     calculating analytical values"
-        analytical_values = generateAnalyticalValues('FCFS', arrivals)
-        params = analytical_values[0]
-        analytical_results = analytical_values[1]
+        for arrivals in sorted(os.listdir(folder)):
+            print "     ", arrivals, "selected"
+            arrivals_file = open(folder + arrivals)
 
-        lambda1_lambda2.append(float(params['lambda1'])+float(params['lambda2']))
-        pending_work_average_analytic.append(analytical_results['pending_work_average'])
+            preemptive = PreemptiveFCFS()
 
-    lambda1_lambda2 = np.array(lambda1_lambda2)
-    pending_work_average_simulated = np.array(pending_work_average_simulated)
-    pending_work_average_analytic = np.array(pending_work_average_analytic)
+            print "     running simulation"
+            simulation_results = run(preemptive, arrivals_file)
 
-    print "     generating plot"
-    plt.plot(lambda1_lambda2, pending_work_average_simulated, color='r')
-    plt.plot(lambda1_lambda2, pending_work_average_analytic, color='b', linestyle='--')
-    plt.savefig('plots/'+folder.split('/')[1]+'.png')
-    plt.close()
+            print "     calculating analytical values"
+            analytical_values = generateAnalyticalValues('PreemptiveFCFS', arrivals)
+
+            params = analytical_values[0]
+            analytical_results = analytical_values[1]
+
+            if (i == 1):
+                plt.ylabel('Pending Work Average')
+                simulated.append(simulation_results['pending_work_average'])
+                analytic.append(analytical_results['pending_work_average'])
+
+            elif (i == 2):
+
+                plt.ylabel('Pending Work Average')
+                simulated.append(simulation_results['pending_work_average'])
+                analytic.append(analytical_results['pending_work_average_q2'])
+
+
+            elif (i == 3):
+                plt.ylabel('Pending Work Average')
+                simulated.append(simulation_results['pending_work_average'])
+                analytic.append(analytical_results['pending_work_average_q3'])
+
+            elif (i == 4):
+                plt.ylabel('Time Average Client 2')
+                simulated.append(simulation_results['time_average'][2])
+                analytic.append(analytical_results['time_average_q4'][2])
+
+            elif (i == 5):
+                plt.ylabel('Wait Average Client 2')
+                simulated.append(simulation_results['wait_average'][2])
+                analytic.append(analytical_results['wait_average_q5'][2])
+
+            elif (i == 6):
+                simulated.append(simulation_results['wait_average'][1])
+                simulated2.append(simulation_results['wait_average'][2])
+
+                analytic.append(analytical_results['pending_work_average'])
+
+            elif (i == 7):
+                plt.ylabel('Time Average')
+                simulated.append(simulation_results['time_average']['all'])
+                analytic.append(analytical_results['time_average_q7']['all'])
+            elif (i == 8):
+                plt.ylabel('Wait Average Client 1')
+                simulated.append(simulation_results['wait_average'][1])
+                analytic.append(analytical_results['wait_average_q8'][1])
+            elif (i == 9):
+                plt.ylabel('Wait Average Client 1')
+                simulated.append(simulation_results['wait_average'][1])
+                analytic.append(analytical_results['wait_average_q9'][1])
+            elif (i == 10):
+                pass
+
+            lambda1_lambda2.append(float(params['lambda1'])+float(params['lambda2']))
+
+        lambda1_lambda2 = np.array(lambda1_lambda2)
+        simulated = np.array(simulated)
+        analytic = np.array(analytic)
+        simulated2 = np.array(simulated2)
+
+        print "     generating plot"
+
+        if i != 6:
+            plt.plot(lambda1_lambda2, simulated, color='r')
+            plt.plot(lambda1_lambda2, analytic, color='b', linestyle='--')
+
+        else:
+            f, axis = plt.subplots(2, sharex=True)
+
+            axis[0].plot(lambda1_lambda2, simulated, color='r')
+            axis[0].plot(lambda1_lambda2, analytic, color='b', linestyle='--')
+            axis[0].set_xlabel(r'$\lambda$')
+            axis[0].set_ylabel('Wait Average Client 1')
+            axis[1].plot(lambda1_lambda2, simulated2, color='r')
+            axis[1].plot(lambda1_lambda2, analytic, color='b', linestyle='--')
+            axis[1].set_xlabel(r'$\lambda$')
+            axis[1].set_ylabel('Wait Average Client 2')
+
+        plt.savefig('plots/' + str(i) + '-' + queue + '-' + folder.split('/')[1]+'.png')
+        plt.close()
 
 if __name__ == "__main__":
     main()

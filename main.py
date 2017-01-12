@@ -33,6 +33,16 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     pendingWorkAverage = 0
     utilisation = {}
 
+    pendingWorkAverage_q2 = 0
+    pendingWorkAverage_q3 = 0
+    timeAverage_q4 = {}
+    waitAverage_q5 = {}
+    time_average_q7 = {}
+    waitAverage_q8 = {}
+    waitAverage_q9 = {}
+
+
+
     if queue_type == 'FCFS':
         workAverage['all'] = (1/muTotal)
         utilisation['all'] = lambdTotal / muTotal
@@ -103,8 +113,16 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = clientsAverage[1] + clientsAverage[2]
 
+    pendingWorkAverage_q2 = (residualAverage[1]*utilisation[1] + residualAverage[2]*utilisation[2] + utilisation['all']*residualAverage['all'])/(1 - utilisation['all'])
+    pendingWorkAverage_q3 = queueClientsAverage[1]* workAverage[1] +  queueClientsAverage[2]* workAverage[2] + workAverage[1]*utilisation[1] + workAverage[2]*utilisation[2]
+    timeAverage_q4[2] = (workAverage[2] + pendingWorkAverage)/(1 - utilisation[1])
+    waitAverage_q5[2] = pendingWorkAverage/(1 - utilisation[1])
+    time_average_q7['all'] = workAverage['all']/ (1 - utilisation['all'])
+    waitAverage_q8[1] = workAverage[1]/(1 - utilisation[1])
+    waitAverage_q9[1] = (utilisation[1]*residualAverage[1])/(1-utilisation[1])
+
     params = {'lambda1' : arrivalValues[LAMBD1], 'lambda2' : arrivalValues[LAMBD2]}
-    analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'utilisation' : utilisation}
+    analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'time_average_q4' : timeAverage_q4, 'time_average_q7' : time_average_q7, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'wait_average_q5' :  waitAverage_q5, 'wait_average_q8' :  waitAverage_q8, 'wait_average_q9' :  waitAverage_q9, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'pending_work_average_q2' : pendingWorkAverage_q2, 'pending_work_average_q3' : pendingWorkAverage_q3, 'utilisation' : utilisation}
 
     return (params, analytical_results)
 
