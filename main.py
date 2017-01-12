@@ -27,31 +27,24 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     utilisation = {}
 
     if queue_type == 'FCFS':
-        utilisation[1] = float(arrivalValues[LAMBD1]) * float(arrivalValues[MU1])
-        utilisation[2] = float(arrivalValues[LAMBD2]) * float(arrivalValues[MU2])
-        utilisation['all'] = (utilisation[1] + utilisation[2])
+        lambdTotal = float(arrivalValues[LAMBD1]) + float(arrivalValues[LAMBD2])
+        muTotal = (float(arrivalValues[MU1]) + float(arrivalValues[MU2]))/2
 
-        workAverage[1] = float(arrivalValues[MU1])
-        workAverage[2] = float(arrivalValues[MU2])
-        workAverage['all'] = workAverage[1] + workAverage[2]
+        workAverage['all'] = (1/muTotal)
 
-        residualAverage[1] = (workAverage[1]**2)/(2*workAverage[1])
-        residualAverage[2] = (workAverage[2]**2)/(2*workAverage[2])
-        residualAverage['all'] = (workAverage['all']**2)/(2*workAverage['all'])
+        utilisation['all'] = lambdTotal / muTotal
 
-        waitAverage[1] = residualAverage[1]/(1-utilisation[1])
-        waitAverage[2] = residualAverage[2]/(1-utilisation[2])
-        waitAverage['all'] = residualAverage['all']/(1-utilisation['all'])
-
-        queueClientsAverage[1] = float(arrivalValues[LAMBD1]) * waitAverage[1]
-        queueClientsAverage[2] = float(arrivalValues[LAMBD2]) * waitAverage[2]
-        queueClientsAverage['all'] = float(arrivalValues[LAMBD1]) * waitAverage[1]
-
-        timeAverage[1] = workAverage[1] + waitAverage[1]
-        timeAverage[2] = workAverage[2] + waitAverage[2]
-        timeAverage['all'] = workAverage['all'] + waitAverage['all']
+        residualAverage['all'] = workAverage['all'] / 2
 
         pendingWorkAverage['all'] = utilisation['all']*residualAverage['all']/(1 - utilisation['all'])
+
+        waitAverage['all'] = pendingWorkAverage['all']
+
+        queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+
+        timeAverage['all'] = workAverage['all'] + waitAverage['all']
+
+        clientsAverage['all'] = lambdTotal * timeAverage['all']
         #clientsAverage['1'] = arrivalValues[LAMBD1]
         #clientsAverage['2'] = arrivalValues[LAMBD2]
         #clientsAverage['all'] = (arrivalValues[LAMBD1] + arrivalValues[LAMBD2])
@@ -60,7 +53,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         #queueClientsAverage['all'] =
 
     print 'params = {\'lambda1\' :', arrivalValues[LAMBD1], ',\'lambda2\' :', arrivalValues[LAMBD2], '}'
-    print 'analytical_results = {\'clients_average\' :', queueClientsAverage, ', \'time_average\' :', timeAverage, ', \'work_average\' :', workAverage, ', \'wait_average\' :', waitAverage, ', \'residual_average\' :', residualAverage, ', \'pending_work_average\' :', pendingWorkAverage, ', \'utilisation\' :', utilisation, '}'
+    print 'analytical_results = {\'clientsAverage\' :', clientsAverage, ',\'queue_clients_average\' :', queueClientsAverage, ', \'time_average\' :', timeAverage, ', \'work_average\' :', workAverage, ', \'wait_average\' :', waitAverage, ', \'residual_average\' :', residualAverage, ', \'pending_work_average\' :', pendingWorkAverage, ', \'utilisation\' :', utilisation, '}'
 
 
 def formatArrivalsFile(arrivals_file):
