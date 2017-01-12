@@ -23,7 +23,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     waitAverage = {}
     timeAverage = {}
     residualAverage = {}
-    pendingWorkAverage = {}
+    pendingWorkAverage = 0
     utilisation = {}
 
     if queue_type == 'FCFS':
@@ -51,7 +51,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         timeAverage[2] = workAverage[2] + waitAverage[2]
         timeAverage['all'] = workAverage['all'] + waitAverage['all']
 
-        pendingWorkAverage['all'] = utilisation['all']*residualAverage['all']/(1 - utilisation['all'])
+        pendingWorkAverage = utilisation['all']*residualAverage['all']/(1 - utilisation['all'])
         #clientsAverage['1'] = arrivalValues[LAMBD1]
         #clientsAverage['2'] = arrivalValues[LAMBD2]
         #clientsAverage['all'] = (arrivalValues[LAMBD1] + arrivalValues[LAMBD2])
@@ -59,12 +59,14 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         #queueClientsAverage['2'] =
         #queueClientsAverage['all'] =
 
-    print 'params = {\'lambda1\' :', arrivalValues[LAMBD1], ',\'lambda2\' :', arrivalValues[LAMBD2], '}'
-    print 'analytical_results = {\'clients_average\' :', queueClientsAverage, ', \'time_average\' :', timeAverage, ', \'work_average\' :', workAverage, ', \'wait_average\' :', waitAverage, ', \'residual_average\' :', residualAverage, ', \'pending_work_average\' :', pendingWorkAverage, ', \'utilisation\' :', utilisation, '}'
+    params = {'lambda1' : arrivalValues[LAMBD1], 'lambda2' : arrivalValues[LAMBD2]}
+    analytical_results = {'clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'work_average' : workAverage, 'wait_average' : waitAverage, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'utilisation' : utilisation}
+    return (params, analytical_results)
 
 
 def formatArrivalsFile(arrivals_file):
-    arrivals = arrivals_file[18:]
+    hyphen_pos = arrivals_file.index('-')
+    arrivals = arrivals_file[hyphen_pos+1:]
 
     count = 1
     arrivalValues = list()
@@ -105,7 +107,9 @@ def run(queue, file):
     file.close()
     queue.simulate()
     queue.calculateMetrics()
-    print "simulated_results = {'clients_average' :", queue.clientsAverage, ", 'time_average' :", queue.timeAverage, ", 'work_average' :", queue.workAverage, ", 'wait_average' :", queue.waitAverage, ", 'residual_Average' :", queue.residualAverage, ", 'pending_work_Average' :", queue.pendingWorkAverage, ", 'utilisation' :", queue.utilisation, '}'
+
+    simulated_results = {'clients_average' : queue.clientsAverage, 'time_average' : queue.timeAverage, 'work_average' : queue.workAverage, 'wait_average' : queue.waitAverage, 'residual_Average' : queue.residualAverage, 'pending_work_average' : queue.pendingWorkAverage, 'utilisation' : queue.utilisation}
+    return simulated_results
 
 def main():
     verbose = False
@@ -124,8 +128,6 @@ def main():
 
     queue_type = sys.argv[1]
     arrivals_file = sys.argv[2]
-
-    params = arrivals_file[18:].split('_')
 
     file = open( arrivals_file )
 
