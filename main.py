@@ -17,6 +17,13 @@ TIME = 4
 def generateAnalyticalValues(queue_type, arrivals_file):
     arrivalValues = formatArrivalsFile(arrivals_file)
 
+    lambd1 = float(arrivalValues[LAMBD1])
+    lambd2 = float(arrivalValues[LAMBD2])
+    mu1 = float(arrivalValues[MU1])
+    mu2 = float(arrivalValues[MU2])
+    lambdTotal = float(arrivalValues[LAMBD1]) + float(arrivalValues[LAMBD2])
+    muTotal = (float(arrivalValues[MU1]) + float(arrivalValues[MU2]))/2
+
     clientsAverage = {}
     queueClientsAverage = {}
     workAverage = {}
@@ -27,30 +34,74 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     utilisation = {}
 
     if queue_type == 'FCFS':
-        lambdTotal = float(arrivalValues[LAMBD1]) + float(arrivalValues[LAMBD2])
-        muTotal = (float(arrivalValues[MU1]) + float(arrivalValues[MU2]))/2
-
         workAverage['all'] = (1/muTotal)
-
         utilisation['all'] = lambdTotal / muTotal
-
         residualAverage['all'] = workAverage['all'] / 2
-
         pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
-
         waitAverage['all'] = pendingWorkAverage
-
         queueClientsAverage['all'] = lambdTotal * waitAverage['all']
-
         timeAverage['all'] = workAverage['all'] + waitAverage['all']
-
         clientsAverage['all'] = lambdTotal * timeAverage['all']
-        #clientsAverage['1'] = arrivalValues[LAMBD1]
-        #clientsAverage['2'] = arrivalValues[LAMBD2]
-        #clientsAverage['all'] = (arrivalValues[LAMBD1] + arrivalValues[LAMBD2])
-        #queueClientsAverage['1'] =
-        #queueClientsAverage['2'] =
-        #queueClientsAverage['all'] =
+    if queue_type == 'LCFS':
+        workAverage['all'] = (1/muTotal)
+        utilisation['all'] = lambdTotal / muTotal
+        residualAverage['all'] = workAverage['all'] / 2
+        pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
+        waitAverage['all'] = pendingWorkAverage
+        timeAverage['all'] = waitAverage['all'] + workAverage['all']
+        queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+        clientsAverage['all'] = lambdTotal * timeAverage['all']
+    if queue_type == 'PreemptiveLCFS':
+        utilisation['all'] = lambdTotal / muTotal
+        workAverage['all'] = (1/muTotal)
+        residualAverage['all'] = workAverage['all'] / 2
+        pendingWorkAverage = utilisation['all'] * residualAverage['all'] / (1 - utilisation['all'])
+        timeAverage['all'] = workAverage['all'] / (1 - utilisation['all'])
+        clientsAverage['all'] = lambdTotal * timeAverage['all']
+        waitAverage['all'] = utilisation['all'] * workAverage['all'] / (1 - utilisation['all'])
+        queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+    if queue_type == 'FCFSWithPriority':
+        workAverage[1] = (1/mu1)
+        workAverage[2] = (1/mu2)
+        workAverage['all'] = workAverage[1] * (lambd1/lambdTotal) + workAverage[2] * (lambd2/lambdTotal)
+        utilisation[1] = (lambd1 / mu1)
+        utilisation[2] = (lambd2 / mu2)
+        utilisation['all'] = utilisation[1] + utilisation[2]
+        residualAverage[1] = residualAverage[2] = residualAverage['all'] = workAverage['all'] / 2
+        pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
+        waitAverage[1] = residualAverage['all'] / (1 - utilisation[1])
+        waitAverage[2] = residualAverage['all'] / (1 - (utilisation[1] + utilisation[2]))
+        waitAverage['all'] = waitAverage[1] * (utilisation[1]/(utilisation[1]+utilisation[2])) + waitAverage[2] * (utilisation[2]/(utilisation[1]+utilisation[2]))
+        queueClientsAverage[1] = lambd1 * waitAverage[1]
+        queueClientsAverage[2] = lambd2 * waitAverage[2]
+        queueClientsAverage['all'] = queueClientsAverage[1] + queueClientsAverage[2]
+        timeAverage[1] = workAverage[1] + waitAverage[1]
+        timeAverage[2] = workAverage[2] + waitAverage[2]
+        timeAverage['all'] = workAverage['all'] + waitAverage['all']
+        clientsAverage[1] = lambd1 * timeAverage[1]
+        clientsAverage[2] = lambd2 * timeAverage[2]
+        clientsAverage['all'] = clientsAverage[1] + clientsAverage[2]
+    if queue_type == 'PreemptiveFCFS':
+        workAverage[1] = (1/mu1)
+        workAverage[2] = (1/mu2)
+        workAverage['all'] = workAverage[1] * (lambd1/lambdTotal) + workAverage[2] * (lambd2/lambdTotal)
+        utilisation[1] = lambd1*workAverage[1]
+        utilisation[2] = lambd2*workAverage[2]
+        utilisation['all'] = utilisation[1] + utilisation[2]
+        residualAverage[1] = residualAverage[2] = residualAverage['all'] =  workAverage[1] / 2
+        pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
+        waitAverage[1] = utilisation[1] * residualAverage[1] / (1 - utilisation[1])
+        waitAverage[2] = (utilisation[1] * residualAverage[1] + utilisation[2] * residualAverage[2] + utilisation[1] * workAverage[1]) / (1 - utilisation['all'])
+        waitAverage['all'] = waitAverage[1] * (utilisation[1]/(utilisation[1]+utilisation[2])) + waitAverage[2] * (utilisation[2]/(utilisation[1]+utilisation[2]))
+        queueClientsAverage[1] = lambd1 * waitAverage[1]
+        queueClientsAverage[2] = lambd2 * waitAverage[2]
+        queueClientsAverage['all'] = queueClientsAverage[1] + queueClientsAverage[2]
+        timeAverage[1] = workAverage[1] + waitAverage[1]
+        timeAverage[2] = workAverage[2] + waitAverage[2]
+        timeAverage['all'] = workAverage['all'] + waitAverage['all']
+        clientsAverage[1] = lambd1 * timeAverage[1]
+        clientsAverage[2] = lambd2 * timeAverage[2]
+        clientsAverage['all'] = clientsAverage[1] + clientsAverage[2]
 
     params = {'lambda1' : arrivalValues[LAMBD1], 'lambda2' : arrivalValues[LAMBD2]}
     analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'utilisation' : utilisation}
