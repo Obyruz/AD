@@ -103,6 +103,8 @@ def main():
         analytic = np.array(analytic)
         simulated2 = np.array(simulated2)
 
+        plt.xlabel(r'$\lambda$')
+
         print "     generating plot"
 
         if i != 6:
