@@ -256,7 +256,9 @@ def main():
         return
 
     queue.verbose = verbose
+    print "Simulated results"
     print run(queue, file)
+    print "Analytical results"
     print generateAnalyticalValues(queue_type, arrivals_file)
 
 if __name__ == "__main__":
