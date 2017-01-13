@@ -32,6 +32,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     residualAverage = {}
     pendingWorkAverage = 0
     utilisation = {}
+    busyPeriod = {}
 
     pendingWorkAverage_q2 = 0
     pendingWorkAverage_q3 = 0
@@ -41,35 +42,74 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     waitAverage_q8 = {}
     waitAverage_q9 = {}
 
-
-
     if queue_type == 'FCFS':
+        workAverage[1] = (1/mu1)
+        workAverage[2] = (1/mu2)
         workAverage['all'] = (1/muTotal)
+        utilisation[1] = (lambd1 / mu1)
+        utilisation[2] = (lambd1 / mu2)
         utilisation['all'] = lambdTotal / muTotal
+        residualAverage[1] = workAverage[1] / 2
+        residualAverage[2] = workAverage[2] / 2
         residualAverage['all'] = workAverage['all'] / 2
-        pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
+        pendingWorkAverage = (utilisation['all'] * residualAverage['all'])/(1 - utilisation['all'])
+        waitAverage[1] = pendingWorkAverage
+        waitAverage[2] = pendingWorkAverage
         waitAverage['all'] = pendingWorkAverage
+        queueClientsAverage[1] = lambd1 * waitAverage[1]
+        queueClientsAverage[2] = lambd2 * waitAverage[2]
         queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+        timeAverage[1] = workAverage[1] + waitAverage[1]
+        timeAverage[2] = workAverage[2] + waitAverage[2]
         timeAverage['all'] = workAverage['all'] + waitAverage['all']
+        clientsAverage[1] = lambd1 * timeAverage[1]
+        clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = lambdTotal * timeAverage['all']
+        busyPeriod['all'] = workAverage['all'] / (1 - utilisation['all'])
     if queue_type == 'LCFS':
+        workAverage[1] = (1/mu1)
+        workAverage[2] = (1/mu2)
         workAverage['all'] = (1/muTotal)
+        utilisation[1] = (lambd1 / mu1)
+        utilisation[2] = (lambd1 / mu2)
         utilisation['all'] = lambdTotal / muTotal
-        residualAverage['all'] = workAverage['all'] / 2
+        residualAverage[1] = residualAverage[2] = residualAverage['all'] = workAverage['all'] / 2
         pendingWorkAverage = utilisation['all'] * residualAverage['all']/(1 - utilisation['all'])
+        waitAverage[1] = pendingWorkAverage
+        waitAverage[2] = pendingWorkAverage
         waitAverage['all'] = pendingWorkAverage
+        timeAverage[1] = waitAverage[1] + workAverage[1]
+        timeAverage[2] = waitAverage[2] + workAverage[2]
         timeAverage['all'] = waitAverage['all'] + workAverage['all']
+        queueClientsAverage[1] = lambd1 * waitAverage[1]
+        queueClientsAverage[2] = lambd2 * waitAverage[2]
         queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+        clientsAverage[1] = lambd1 * timeAverage[1]
+        clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = lambdTotal * timeAverage['all']
+        busyPeriod['all'] = workAverage['all'] / (1 - utilisation['all'])
     if queue_type == 'PreemptiveLCFS':
-        utilisation['all'] = lambdTotal / muTotal
+        workAverage[1] = (1/mu1)
+        workAverage[2] = (1/mu2)
         workAverage['all'] = (1/muTotal)
-        residualAverage['all'] = workAverage['all'] / 2
+        utilisation[1] = (lambd1 / mu1)
+        utilisation[2] = (lambd1 / mu2)
+        utilisation['all'] = lambdTotal / muTotal
+        residualAverage[1] = residualAverage[2] = residualAverage['all'] = workAverage['all'] / 2
         pendingWorkAverage = utilisation['all'] * residualAverage['all'] / (1 - utilisation['all'])
+        timeAverage[1] = workAverage[1] / (1 - (utilisation[1] + utilisation[2]))
+        timeAverage[2] = workAverage[2] / (1 - (utilisation[1] + utilisation[2]))
         timeAverage['all'] = workAverage['all'] / (1 - utilisation['all'])
+        clientsAverage[1] = lambd1 * timeAverage[1]
+        clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = lambdTotal * timeAverage['all']
+        waitAverage[1] = (utilisation[1] * workAverage[1] + utilisation[2] * workAverage[2]) / (1 - utilisation['all'])
+        waitAverage[2] = (utilisation[2] * workAverage[2] + utilisation[1] * workAverage[1]) / (1 - utilisation['all'])
         waitAverage['all'] = utilisation['all'] * workAverage['all'] / (1 - utilisation['all'])
+        queueClientsAverage[1] = lambd1 * waitAverage[1]
+        queueClientsAverage[2] = lambd2 * waitAverage[2]
         queueClientsAverage['all'] = lambdTotal * waitAverage['all']
+        busyPeriod['all'] = workAverage['all'] / (1 - utilisation['all'])
     if queue_type == 'FCFSWithPriority':
         workAverage[1] = (1/mu1)
         workAverage[2] = (1/mu2)
@@ -91,6 +131,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         clientsAverage[1] = lambd1 * timeAverage[1]
         clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = clientsAverage[1] + clientsAverage[2]
+        busyPeriod['all'] = workAverage['all'] / (1 - utilisation['all'])
     if queue_type == 'PreemptiveFCFS':
         workAverage[1] = (1/mu1)
         workAverage[2] = (1/mu2)
@@ -112,6 +153,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
         clientsAverage[1] = lambd1 * timeAverage[1]
         clientsAverage[2] = lambd2 * timeAverage[2]
         clientsAverage['all'] = clientsAverage[1] + clientsAverage[2]
+        busyPeriod['all'] = workAverage['all'] / (1 - utilisation['all'])
 
     pendingWorkAverage_q2 = (residualAverage[1]*utilisation[1] + residualAverage[2]*utilisation[2] + utilisation['all']*residualAverage['all'])/(1 - utilisation['all'])
     pendingWorkAverage_q3 = queueClientsAverage[1]* workAverage[1] +  queueClientsAverage[2]* workAverage[2] + workAverage[1]*utilisation[1] + workAverage[2]*utilisation[2]
@@ -122,7 +164,7 @@ def generateAnalyticalValues(queue_type, arrivals_file):
     waitAverage_q9[1] = (utilisation[1]*residualAverage[1])/(1-utilisation[1])
 
     params = {'lambda1' : arrivalValues[LAMBD1], 'lambda2' : arrivalValues[LAMBD2]}
-    analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'time_average_q4' : timeAverage_q4, 'time_average_q7' : time_average_q7, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'wait_average_q5' :  waitAverage_q5, 'wait_average_q8' :  waitAverage_q8, 'wait_average_q9' :  waitAverage_q9, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'pending_work_average_q2' : pendingWorkAverage_q2, 'pending_work_average_q3' : pendingWorkAverage_q3, 'utilisation' : utilisation}
+    analytical_results = {'clientsAverage' : clientsAverage, 'queue_clients_average' : queueClientsAverage, 'time_average' : timeAverage, 'time_average_q4' : timeAverage_q4, 'time_average_q7' : time_average_q7, 'work_average' : workAverage, 'wait_average' :  waitAverage, 'wait_average_q5' :  waitAverage_q5, 'wait_average_q8' :  waitAverage_q8, 'wait_average_q9' :  waitAverage_q9, 'residual_average' : residualAverage, 'pending_work_average' : pendingWorkAverage, 'pending_work_average_q2' : pendingWorkAverage_q2, 'pending_work_average_q3' : pendingWorkAverage_q3, 'utilisation' : utilisation, 'busyPeriod' : busyPeriod}
 
     return (params, analytical_results)
 
@@ -214,8 +256,8 @@ def main():
         return
 
     queue.verbose = verbose
-    run(queue, file)
-    generateAnalyticalValues(queue_type, arrivals_file)
+    print run(queue, file)
+    print generateAnalyticalValues(queue_type, arrivals_file)
 
 if __name__ == "__main__":
     main()
